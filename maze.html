@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table {
+            margin: 50px auto;
+        }
+
+        td {
+            height: 50px;
+            width: 50px;
+        }
+
+        td:not(.player):not(.destination):not(.blocked) {
+            background-color: #ddd;
+        }
+
+        td.player {
+            background-color: #f00;
+        }
+
+        td.destination {
+            background-color: #0f0;
+        }
+
+        td.blocked {
+            background-color: #000;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <table id="maze"></table>
+
+    <script>
+        var maze = document.getElementById('maze');
+        var playerPosition = { x: 0, y: 0 };
+
+        // Define blocked cells (walls)
+        var blocked = [
+            { x: 0, y: 1 },
+            { x: 0, y: 2 },
+            { x: 2, y: 1 },
+            { x: 2, y: 2 },
+            { x: 2, y: 3 },
+            { x: 3, y: 1 },
+            { x: 4, y: 1 },
+            { x: 4, y: 2 },
+            { x: 4, y: 3 }
+        ];
+
+        for(var i=0; i<5; i++) {
+            var row = document.createElement('tr');
+            for(var j=0; j<5; j++) {
+                var cell = document.createElement('td');
+                cell.id = `${i}-${j}`;
+                if (blocked.find(block => block.x === j && block.y === i)) {
+                    cell.className = 'blocked';
+                }
+                row.appendChild(cell);
+            }
+            maze.appendChild(row);
+        }
+
+        document.getElementById('0-0').className = 'player';
+        document.getElementById('4-4').className = 'destination';
+
+        window.addEventListener('keydown', handleKeydown);
+
+        function handleKeydown(event) {
+            var oldPosition = { x: playerPosition.x, y: playerPosition.y };
+
+            switch(event.key) {
+                case 'ArrowUp':
+                    playerPosition.y = Math.max(playerPosition.y - 1, 0);
+                    break;
+                case 'ArrowDown':
+                    playerPosition.y = Math.min(playerPosition.y + 1, 4);
+                    break;
+                case 'ArrowLeft':
+                    playerPosition.x = Math.max(playerPosition.x - 1, 0);
+                    break;
+                case 'ArrowRight':
+                    playerPosition.x = Math.min(playerPosition.x + 1, 4);
+                    break;
+            }
+
+            if (blocked.find(block => block.x === playerPosition.x && block.y === playerPosition.y)) {
+                // If new position is blocked, restore the old position
+                playerPosition = oldPosition;
+            } else {
+                document.getElementById(`${oldPosition.y}-${oldPosition.x}`).classList.remove('player');
+                document.getElementById(`${playerPosition.y}-${playerPosition.x}`).className += ' player';
+            }
+
+            if (playerPosition.y === 4 && playerPosition.x === 4) {
+                setTimeout(function() { alert('Congratulations, you reached the target!'); }, 100);
+            }
+        }
+    </script>
+</body>
+</html>
+
